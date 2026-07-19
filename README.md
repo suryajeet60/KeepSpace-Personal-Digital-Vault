@@ -21,8 +21,8 @@ KeepSpace is a secure full-stack web application that allows users to store, org
 
 # Frontend
 
-React.js
-CSS3
+* React.js
+* CSS3
 
 # Backend
 
