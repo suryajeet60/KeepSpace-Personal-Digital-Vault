@@ -1,38 +1,27 @@
-# ==========================
-# Stage 1: Build the application
-# ==========================
-FROM eclipse-temurin:17-jdk-focal AS builder
+# ---------- Build Stage ----------
+FROM maven:3.9.9-eclipse-temurin-21 AS build
 
 WORKDIR /app
 
-# Copy Maven wrapper and project files
-COPY mvnw .
-COPY .mvn .mvn
 COPY pom.xml .
+COPY .mvn .mvn
+COPY mvnw .
 
-# Make Maven wrapper executable
 RUN chmod +x mvnw
 
-# Download dependencies
 RUN ./mvnw dependency:go-offline
 
-# Copy source code
 COPY src src
 
-# Build the application
 RUN ./mvnw clean package -DskipTests
 
-# ==========================
-# Stage 2: Runtime image
-# ==========================
-FROM eclipse-temurin:17-jre-focal
+# ---------- Run Stage ----------
+FROM eclipse-temurin:21-jre
 
 WORKDIR /app
 
-# Copy the generated JAR
-COPY --from=builder /app/target/*.jar app.jar
+COPY --from=build /app/target/*.jar app.jar
 
-# Render provides the PORT environment variable
 EXPOSE 8080
 
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["java","-jar","app.jar"]
